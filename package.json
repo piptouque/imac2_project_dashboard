@@ -4,13 +4,12 @@
   "description": "",
   "scripts": {
     "build": "webpack",
-    "start": "webpack-dev-server --port 2210",
+    "start": "webpack-dev-server --port 2210"
   },
   "repository": {
     "type": "git",
     "url": "https://gitlab.com/piptouque/imac2_web_dashboard"
   },
-  "homepage": "https://gitlab.com/Koroeskohr/tds-js-imac2",
   "devDependencies": {
     "@babel/cli": "^7.7.4",
     "@babel/core": "^7.7.4",
