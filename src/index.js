@@ -1,15 +1,21 @@
+
 import { app } from 'hyperapp'
 
-import { view } from './components/views/ClockView'
-import { initClockState } from './state'
+import { view } from './components/views/index'
+import { initState } from './state/index'
+import { subscriptions, tick } from './actions'
 
-import { interval } from '@hyperapp/time'
+/*
+ * Since Hyperapp 2.0, the actions are not given 
+ * as a field to App, but called from the global scope
+ * by the View instead.
+ */
 
-const Tick = (state, time) => ({ ...state, time })
+
 
 app({
-  init: initClockState(),
+  init: initState, 
   view: view,
-  subscriptions: state => interval(Tick, { ...state, delay: 1000 }),
+  subscriptions: subscriptions,
   node: document.body
 })

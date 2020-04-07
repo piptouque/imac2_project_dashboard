@@ -1,4 +1,4 @@
 
-import { Clock } from '../Clock'
+import { clock } from '../Clock'
 
-export const view = Clock
+export const view = clock
