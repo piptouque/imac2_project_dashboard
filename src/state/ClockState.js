@@ -1,5 +1,5 @@
 
 export const initClockState = time => ({
   time,
-  use24: false
+  use24: true
 })

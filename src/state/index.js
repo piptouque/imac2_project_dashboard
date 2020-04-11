@@ -1,10 +1,10 @@
+
+import { initInfoState } from './InfoState'
 import { initClockState } from './ClockState'
+import { initGraphState } from './GraphState'
 
 export const initState = {
-    info: {
-        title: 'AirDashboard',
-        descr: 'End-of-semester project for the IMAC2 web development course',
-        authors: ['Ruben BRAMI', 'Pierre LABENDZKI', 'Pierre THIEL']
-    },
-    clock: initClockState(Date.now())
+  info: initInfoState,
+  clock: initClockState(Date.now()),
+  graph: initGraphState
 }

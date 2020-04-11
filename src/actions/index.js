@@ -1,51 +1,49 @@
 
-import axios from 'axios'
 import { interval } from '@hyperapp/time'
 
-import { clockActions, clockSubscriptions, tick } from './ClockActions'
-
+import { infoActions } from './InfoActions'
+import { clockActions, tick } from './ClockActions'
+import { graphActions } from './GraphActions'
 
 const mapFuncState = (func, stateKey) =>
-  state => {
-    var cpyState = { ...state }
-    cpyState[stateKey] = func(cpyState[stateKey])
-    return cpyState
-  }
+  // eslint-disable-next-line fp/no-rest-parameters
+  (state, ...args) => ({
+    ...state,
+    [stateKey]: func(state[stateKey], ...args)
+  })
 
-const mapProsState = (func, stateKey) => state => func(state[stateKey])
+const mapEntryState = (key, func, stateKey) =>
+  [key, mapFuncState(func, stateKey)]
 
-const mapEntryState =  (key, func, stateKey) =>
-  [key, mapFuncState(func, stateKey)]  
-
-const mapActions = actions => 
-  {
-    var mappedActions = { ...actions }
-    mappedActions[actions.actionsKey] =
+const mapActions = actions => ({
+  ...actions,
+  [actions.actionsKey]:
       Object.fromEntries(
-        Object.entries(mappedActions[actions.actionsKey])
-              .map(entry => 
-                mapEntryState(entry[0], entry[1], actions.stateKey)
-              )
+        Object.entries(actions[actions.actionsKey])
+          .map(entry =>
+            mapEntryState(
+              entry[0],
+              entry[1],
+              actions.stateKey
+            )
+          )
       )
-    return mappedActions
-  }
-
-const printState = state => { console.log(state); return state }
+})
 
 export const actions = {
   clock: mapActions(clockActions),
-  misc: {
-    printState
-  }
+  graph: mapActions(graphActions),
+  /* need no mapping for miscellaneous actions */
+  misc: infoActions
 }
 
 const mappedTick = (state, time) => ({ ...state, clock: tick(state.clock, time) })
 
-export const subscriptions = state => 
-  interval(mappedTick, { delay: 1000 })
+// const updateGraph = actions.graph.state.updateGraphs
 
-/*
-import { interval } from '@hyperapp/time'
-export const tick = (state, time) => ({ ...state, clock: {...state.clock, time } })
-export const subscriptions = state => interval(tick, { delay: 1000 })
-*/
+// eslint-disable-next-line no-unused-vars
+export const subscriptions = _state => [
+  [
+    interval(mappedTick, { delay: 1000 })
+  ]
+]

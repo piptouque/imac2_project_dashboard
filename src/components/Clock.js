@@ -1,5 +1,4 @@
 import { h } from 'hyperapp'
-import { actions } from '../actions'
 
 export const clock = (props, actionsClock) =>
   h('div', {}, [
@@ -12,12 +11,7 @@ export const clock = (props, actionsClock) =>
           checked: props.use24,
           onInput: actionsClock.state.toggleFormat
         }),
-        h('input', {
-          type: 'checkbox',
-          checked: props.use24,
-          onInput: actions.misc.printState
-        }),
-        'Format 24 heures'
+        h('span', null, 'Format 24 heures')
       ])
     ])
   ])

@@ -6,7 +6,7 @@ const libraryName = pkg.name
 
 const plugins = [
   new MiniCssExtractPlugin(),
-  new webpack.optimize.ModuleConcatenationPlugin(),
+  new webpack.optimize.ModuleConcatenationPlugin()
 ]
 
 const config = {
@@ -43,6 +43,9 @@ const config = {
   resolve: {
     modules: [path.resolve('./node_modules'), path.resolve('./src')],
     extensions: ['.json', '.js']
+  },
+  externals: {
+    moment: 'moment'
   },
   plugins: plugins
 }

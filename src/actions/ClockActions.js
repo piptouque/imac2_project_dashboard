@@ -1,5 +1,4 @@
 
-
 export const tick = (props, time) => ({ ...props, time })
 
 export const clockActions = {
@@ -13,10 +12,10 @@ export const clockActions = {
       `${seconds}`.padStart(2, '0') +
       (use24 ? '' : hours >= 12 ? 'PM' : 'AM')
     },
-    posixToHumanTime: (time, use24) => clockActions.utils.formatTime(...clockActions.utils.timeToUnits(new Date(time)), use24),
+    posixToHumanTime: (time, use24) => clockActions.utils.formatTime(...clockActions.utils.timeToUnits(new Date(time)), use24)
   },
   /** **/
   state: {
-    toggleFormat: props => ({ ...props, use24: !props.use24})
+    toggleFormat: props => ({ ...props, use24: !props.use24 })
   }
 }
