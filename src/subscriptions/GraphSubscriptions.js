@@ -1,14 +1,31 @@
 import { observe } from './observe'
 
-import { actions } from '../actions'
+import { graphActions } from '../actions/GraphActions'
 
-const updateGraph = state => {
-  return actions.graph.state.updateGraphs(state)
+// eslint-disable-next-line no-unused-vars
+const onChangeGraph = (state, [element, change]) => {
+  console.log(element, change)
+  switch (change.type) {
+    case 'added':
+      return graphActions.state.setGraph(state, element.id, element)
+    case 'removed':
+      /*
+       * Nothing to do, the removeGraph action already unset everything.
+       */
+      break
+    case 'updated':
+      /*
+       * Nothing to do either, the actions do all the work.
+       */
+      break
+    default:
+      break
+  }
 }
 
 // eslint-disable-next-line no-unused-vars
 export const graphSubscriptions = init =>
-  observe(updateGraph, {
+  observe(onChangeGraph, {
     /*
      * target: node to watch, must be in DOM at init.
      * select: required attributes of target to trigger action

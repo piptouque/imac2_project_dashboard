@@ -40,32 +40,39 @@ export const graphActions = {
           }]
         }
       }),
-    /* UGLY BAD */
+    getGraphFromNodeId: (graphs, nodeId) => graphs.find(graph => graph.nodeId === nodeId),
     getContext: graph => {
       const element = document.getElementById(graph.nodeId)
       return element === null ? null : element.getContext('2d')
     },
-    isContextValid: graph => graphActions.utils.getContext(graph) !== null,
-    shouldBeSet: graph => !graph.isSet && graphActions.utils.isContextValid(graph),
-    setGraph: graph => ({
+    setChart: (graph, ctx) => ({
       ...graph,
       isSet: true,
       chart: graph.callback(
-        graphActions.utils.getContext(graph),
+        ctx,
         ...graph.args
       )
     })
   },
   state: {
-    updateGraphs: props => {
-      const updated = props.graphs.filter(graphActions.utils.shouldBeSet)
-        .map(graph => graphActions.utils.setGraph(graph))
-      const notUpdated = props.graphs.filter(graph => !graphActions.utils.shouldBeSet(graph))
-      return {
-        ...props,
-        graphs: [...updated, ...notUpdated]
-      }
-    },
+    setGraph: (props, nodeId, ctx) => ({
+      ...props,
+      graphs: [
+        ...props.graphs.filter(graph => graph.nodeId !== nodeId),
+        graphActions.utils.setChart(
+          graphActions.utils.getGraphFromNodeId(
+            props.graphs, nodeId
+          ),
+          ctx
+        )
+      ]
+    }),
+    removeGraph: (props, nodeId) => ({
+      ...props,
+      graphs: [
+        ...props.graphs.filter(graph => graph.nodeId !== nodeId)
+      ]
+    }),
     // eslint-disable-next-line fp/no-rest-parameters
     addGraph: (props, callback, ...args) => {
       const nodeId = props.getNextNodeId()

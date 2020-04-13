@@ -1,5 +1,5 @@
 
-const mapFuncState = (func, stateKey) =>
+export const mapFuncState = (func, stateKey) =>
   // eslint-disable-next-line fp/no-rest-parameters
   (state, ...args) => ({
     ...state,

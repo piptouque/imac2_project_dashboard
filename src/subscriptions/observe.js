@@ -1,8 +1,8 @@
 
 /*
  * Credits go to sergey-shpak for the original code.
- * link:https://github.com/jorgebucaran/hyperapp/issues/766#issuecomment-428258860
- * Has been fixed.
+ * link:https://github.com/jorgebucaran/hyperapp/issues/766#issuecomment-428258860.
+ * (c'mon)
 */
 
 // DOM Effect
@@ -24,7 +24,7 @@ const onChange = (select, cb) => mutations =>
       find(select, [target], node =>
         cb(node, { type: 'updated', attribute: [oldValue, attributeName] }))
       addedNodes.length &&
-        find(select, addedNodes, node => { console.log(node); return cb(node, { type: 'added' }) })
+        find(select, addedNodes, node => cb(node, { type: 'added' }))
       removedNodes.length &&
         find(select, removedNodes, node => cb(node, { type: 'removed' }))
     })
@@ -32,8 +32,9 @@ const onChange = (select, cb) => mutations =>
 const observer = (dispatch, props) => {
   const obs = new MutationObserver(
     onChange(props.select,
-      (element, propsChange) =>
-        dispatch([props.action, element], propsChange)
+      (element, change) => {
+        return dispatch([props.action, [element, change]])
+      }
     )
   )
   obs.observe(props.target, props.config)
