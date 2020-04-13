@@ -45,6 +45,7 @@
   "dependencies": {
     "@hyperapp/time": "^0.0.10",
     "@hyperapp/events": "^0.0.4",
+    "@hyperapp/http": "^0.0.2",
     "hyperapp": "^2.0.4",
     "axios": "^0.19.2",
     "chart.js": "^2.9.3"

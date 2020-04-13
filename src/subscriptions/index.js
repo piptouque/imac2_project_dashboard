@@ -8,11 +8,11 @@ import { mapFuncState } from '../utils'
  *
  */
 // Pretty silly, but whatever
-const mapSubscriptions = (subscriptions, stateKey) => [
-  subscriptions[0],
+const mapSubscriptions = ([fx, props], stateKey) => [
+  fx,
   {
-    ...subscriptions[1],
-    action: mapFuncState(subscriptions[1].action, stateKey)
+    ...props,
+    action: mapFuncState(props.action, stateKey)
   }
 ]
 

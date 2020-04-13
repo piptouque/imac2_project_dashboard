@@ -20,7 +20,7 @@ export const graph = (props, graphActions) =>
           type: 'button',
           onclick: graphActions.state.addBarWhatever
         }),
-        h('span', null, 'État: fixer un graph'),
+        h('span', null, 'État: ajouter un graph'),
         h('br', null)
       ])
     ]),

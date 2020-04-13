@@ -15,17 +15,12 @@ export const graphActions = {
             data: data
           }]
         },
-        options: {
-          title: {
-            display: true,
-            text: title
-          }
-        }
+        options: { title: { display: true, text: title } }
       }),
-    createLine: (ctx, title, x, datasets) =>
+    createLine: (ctx, title, x, dataset) =>
       new Chart(ctx, {
         type: 'line',
-        data: { labels: x, datasets: datasets },
+        data: { labels: x, datasets: dataset },
         options: { title: { display: true, text: title } }
       }),
 
@@ -38,7 +33,8 @@ export const graphActions = {
             label: 'TODO',
             data: data
           }]
-        }
+        },
+        options: { title: { display: true, text: title } }
       }),
     getGraphFromNodeId: (graphs, nodeId) => graphs.find(graph => graph.nodeId === nodeId),
     getContext: graph => {

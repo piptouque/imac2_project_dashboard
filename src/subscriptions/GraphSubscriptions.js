@@ -4,13 +4,12 @@ import { graphActions } from '../actions/GraphActions'
 
 // eslint-disable-next-line no-unused-vars
 const onChangeGraph = (state, [element, change]) => {
-  console.log(element, change)
   switch (change.type) {
     case 'added':
       return graphActions.state.setGraph(state, element.id, element)
     case 'removed':
       /*
-       * Nothing to do, the removeGraph action already unset everything.
+       * Nothing to do, the removeGraph action already unsets everything.
        */
       break
     case 'updated':
