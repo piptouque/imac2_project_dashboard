@@ -1,15 +1,14 @@
 import { h } from 'hyperapp'
 
-const displayGraph = graph =>
+const displayGraph = (graph, graphClass) =>
   h('canvas', {
-    id: graph.nodeId
+    id: graph.nodeId,
+    class: graphClass
   })
 
 const displayAllGraphs = props =>
-  h('div', {},
-    props.graphs.map(
-      graph => displayGraph(graph)
-    )
+  props.graphs.map(
+    graph => displayGraph(graph, props.graphClass)
   )
 
 export const graph = (props, graphActions) =>
@@ -22,14 +21,8 @@ export const graph = (props, graphActions) =>
           onclick: graphActions.state.addBarWhatever
         }),
         h('span', null, 'État: fixer un graph'),
-        h('br', null),
-        h('input', {
-          type: 'button',
-          onclick: graphActions.state.updateGraphs
-        }),
-        h('span', null, 'État: mettre à jour'),
         h('br', null)
       ])
     ]),
-    displayAllGraphs(props)
+    h('div', { id: props.graphDivId }, displayAllGraphs(props))
   ])

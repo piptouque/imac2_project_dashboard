@@ -1,6 +1,4 @@
 
-export const tick = (props, time) => ({ ...props, time })
-
 export const clockActions = {
   stateKey: 'clock',
   actionsKey: 'state',

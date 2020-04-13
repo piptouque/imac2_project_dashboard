@@ -16,5 +16,7 @@ export const initGraphState = {
   // eslint-disable-next-line fp/no-mutation
   getNextNodeId: () => 'canvas_' + initGraphState.__nextNodeId++,
   /* Array<Chart>() */
+  graphDivId: 'graph_div',
+  graphClass: 'canvas',
   graphs: []
 }

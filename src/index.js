@@ -2,8 +2,11 @@
 import { app } from 'hyperapp'
 
 import { view } from './components/views/index'
+import { actions } from './actions'
 import { initState } from './state/index'
-import { subscriptions } from './actions'
+
+// eslint-disable-next-line no-unused-vars
+import { subscriptions } from './subscriptions'
 
 /*
  * Since Hyperapp 2.0, the actions are not given
@@ -11,9 +14,16 @@ import { subscriptions } from './actions'
  * by the View instead.
  */
 
+const node = document.getElementById('app')
+
 app({
   init: initState,
-  view: view,
-  subscriptions: subscriptions,
-  node: document.getElementById('app')
+  view: view(actions),
+  subscriptions: subscriptions({
+    graph: {
+      target: node,
+      graphClass: initState.graph.graphClass
+    }
+  }),
+  node: node
 })
