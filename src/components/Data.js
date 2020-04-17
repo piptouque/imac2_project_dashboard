@@ -7,8 +7,8 @@ export const data = (props, dataActions) =>
       h('legend', {}, 'Récupération des données'),
       h('label', {}, [
         h('input', {
-          type: 'button'// ,
-          // todo: onclick: dataActions.state.fi
+          type: 'button',
+          onclick: dataActions.state.fillStateWithAPI
         }),
         h('br', null)
       ])

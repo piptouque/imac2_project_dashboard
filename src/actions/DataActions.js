@@ -3,7 +3,8 @@ import { request } from '@hyperapp/http'
 
 // eslint-disable-next-line no-unused-vars
 const fetchDataset = action =>
-  (props, datasetId, { rows }) => [
+// avant c'était { rows }
+  (props, datasetId, rows) => [
     props,
     request({
       url: `https://data.ratp.fr/api/records/1.0/search/?dataset=${datasetId}&rows=${rows}`,
@@ -30,7 +31,13 @@ export const dataActions = {
           co2: item.fields.c2cha4
         })
       )
-    })
+    }),
+    fillStateWithAPI: props => {
+      const action = dataActions.state.fillDataset
+      const effect = fetchDataset(action)
+      console.log(effect)
+      effect(props, props.datasetIds.chatelet, '10')
+    }
 
   }
 }
