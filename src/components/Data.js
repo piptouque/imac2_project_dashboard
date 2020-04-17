@@ -8,7 +8,7 @@ export const data = (props, dataActions) =>
       h('label', {}, [
         h('input', {
           type: 'button',
-          onclick: dataActions.state.fillStateWithAPI
+          onclick: dataActions.utils.fetchDataset(dataActions.state.fillDataset, props.datasetIds.chatelet, 10)
         }),
         h('br', null)
       ])
