@@ -66,12 +66,9 @@ export const graphActions = {
       ]
     }),
     // eslint-disable-next-line fp/no-rest-parameters
-    addGraph: (props, { ...payload }) => {
+    addGraph: (props, { callback, ...payload }) => {
       const nodeId = props.getNextNodeId()
-      const callback = payload.callback
-      const args = Object.entries(payload)
-        .filter(entry => entry[0] !== 'callback')
-        .map(entry => entry[1])
+      const args = Object.values(payload)
       return {
         ...props,
         graphs: [
