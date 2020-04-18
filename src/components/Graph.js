@@ -21,6 +21,11 @@ export const graph = (props, graphActions) =>
           onclick: graphActions.state.addBarWhatever
         }),
         h('span', null, 'État: ajouter un graph'),
+        h('input', {
+          type: 'button',
+          onclick: [graphActions.state.addBar, { title: 'Essai graph', labels: ['zero', 'un', 'deux'], data: [0, 1, 2] }]
+        }
+        ),
         h('br', null)
       ])
     ]),

@@ -12,7 +12,7 @@ export const data = (props, dataActions) =>
               propsDisp,
               data,
               {
-                labels: [props.datasetLabels(props.datasetIds.chatelet).humi]
+                labels: [props.datasetLabels(props.datasetIds.chatelet).humi, props.datasetLabels(props.datasetIds.chatelet).date]
               }),
             props.datasetIds.chatelet,
             10)

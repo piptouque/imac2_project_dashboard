@@ -54,7 +54,7 @@ export const dataActions = {
     addDataset: (props, data, { labels }) => ({
       ...props,
       datasets: [
-        ...props.datasets,
+        ...props.datasets, // on prend tout le tab et en plus je rajoute un élément
         {
           id: data.parameters.dataset,
           labels: labels,
