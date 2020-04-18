@@ -37,10 +37,6 @@ export const graphActions = {
         options: { title: { display: true, text: title } }
       }),
     getGraphFromNodeId: (graphs, nodeId) => graphs.find(graph => graph.nodeId === nodeId),
-    getContext: graph => {
-      const element = document.getElementById(graph.nodeId)
-      return element === null ? null : element.getContext('2d')
-    },
     setChart: (graph, ctx) => ({
       ...graph,
       isSet: true,
@@ -70,7 +66,7 @@ export const graphActions = {
       ]
     }),
     // eslint-disable-next-line fp/no-rest-parameters
-    addGraph: (props, { callback, ...args }) => {
+    addGraph: (props, { callback }, ...args) => {
       const nodeId = props.getNextNodeId()
       return {
         ...props,
@@ -80,7 +76,7 @@ export const graphActions = {
             isSet: false,
             chart: null,
             callback: callback,
-            args: args
+            args
           }
         ]
       }
@@ -89,11 +85,11 @@ export const graphActions = {
       graphActions.state.addGraph(
         props,
         {
-          callback: graphActions.utils.createBar,
-          title,
-          labels,
-          data
-        }
+          callback: graphActions.utils.createBar
+        },
+        title,
+        labels,
+        data
       ),
     addBarWhatever: props =>
       graphActions.state.addBar(
