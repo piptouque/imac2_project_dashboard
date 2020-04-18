@@ -51,7 +51,7 @@ export const dataActions = {
         })
       )
     }),
-    addDataset: (props, data, { labels }) => ({
+    addDataset: (props, { data, labels }) => ({
       ...props,
       datasets: [
         ...props.datasets,

@@ -10,8 +10,8 @@ export const data = (props, dataActions) =>
           onclick: dataActions.utils.fetchDataset(
             (propsDisp, data) => dataActions.state.addDataset(
               propsDisp,
-              data,
               {
+                data,
                 labels: [props.datasetLabels(props.datasetIds.chatelet).humi]
               }),
             props.datasetIds.chatelet,
