@@ -11,6 +11,7 @@ export const data = (props, dataActions) =>
             (propsDisp, data) => dataActions.state.addDataset(
               propsDisp,
               {
+                data,
                 labels: [props.datasetLabels(props.datasetIds.chatelet).humi, props.datasetLabels(props.datasetIds.chatelet).date]
               }),
             props.datasetIds.chatelet,
