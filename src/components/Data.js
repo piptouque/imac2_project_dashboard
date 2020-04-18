@@ -7,7 +7,15 @@ export const data = (props, dataActions) =>
       h('label', {}, [
         h('input', {
           type: 'button',
-          onclick: dataActions.utils.fetchDataset(dataActions.state.fillDataset, props.datasetIds.chatelet, 10)
+          onclick: dataActions.utils.fetchDataset(
+            (propsDisp, data) => dataActions.state.addDataset(
+              propsDisp,
+              data,
+              {
+                labels: [props.datasetLabels(props.datasetIds.chatelet).humi]
+              }),
+            props.datasetIds.chatelet,
+            10)
         }),
         h('br', null)
       ])

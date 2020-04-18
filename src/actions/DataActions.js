@@ -19,7 +19,7 @@ const checkResponse = action =>
     console.log(data)
     /* silly test for now */
     // todo: find a better test
-    const isValid = data => data.records !== undefined
+    const isValid = data => data !== undefined && data.parameters !== undefined && data.records !== undefined
     return isValid(data) ? action(props, data) : state => ({ ...state })
   }
 
@@ -50,6 +50,20 @@ export const dataActions = {
           co2: item.fields.c2cha4
         })
       )
+    }),
+    addDataset: (props, data, { labels }) => ({
+      ...props,
+      datasets: [
+        ...props.datasets,
+        {
+          id: data.parameters.dataset,
+          labels: labels,
+          data:
+            labels.map(
+              label => data.records.map(record => record.fields[label])
+            )
+        }
+      ]
     })
   }
 }
