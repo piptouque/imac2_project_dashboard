@@ -51,7 +51,7 @@ export const graphActions = {
     })
   },
   state: {
-    setGraph: (props, nodeId, ctx) => ({
+    setGraph: (props, { nodeId, ctx }) => ({
       ...props,
       graphs: [
         ...props.graphs.filter(graph => graph.nodeId !== nodeId),
@@ -70,7 +70,7 @@ export const graphActions = {
       ]
     }),
     // eslint-disable-next-line fp/no-rest-parameters
-    addGraph: (props, callback, ...args) => {
+    addGraph: (props, { callback, ...args }) => {
       const nodeId = props.getNextNodeId()
       return {
         ...props,
@@ -85,18 +85,24 @@ export const graphActions = {
         ]
       }
     },
-    addBar: (props, title, labels, data) =>
+    addBar: (props, { title, labels, data }) =>
       graphActions.state.addGraph(
         props,
-        graphActions.utils.createBar,
-        title, labels, data
+        {
+          callback: graphActions.utils.createBar,
+          title,
+          labels,
+          data
+        }
       ),
     addBarWhatever: props =>
       graphActions.state.addBar(
         props,
-        "Qu'importe",
-        ['Coucou', 'ça', 'va', '?'],
-        [0, 1, 2, 3]
+        {
+          title: "Qu'importe",
+          labels: ['Coucou', 'ça', 'va', '?'],
+          data: [0, 1, 2, 3]
+        }
       )
   }
 }

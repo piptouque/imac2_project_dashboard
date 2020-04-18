@@ -7,6 +7,22 @@ const makeFetchURL = (datasetId, rows) => {
   return baseURL + appendRows
 }
 
+const checkResponse = action =>
+  (props, data) => {
+    /*
+     * Here we make sure the data we got
+     * in response to our HTTP request
+     * is valid.
+     * If it is, we go through with the action
+     * If it isn't, we should instead return the state unmodified
+     */
+    console.log(data)
+    /* silly test for now */
+    // todo: find a better test
+    const isValid = data => data.records !== undefined
+    return isValid(data) ? action(props, data) : state => ({ ...state })
+  }
+
 export const dataActions = {
   stateKey: 'data',
   actionsKey: 'state',
@@ -16,26 +32,24 @@ export const dataActions = {
       request({
         url: makeFetchURL(datasetId, rows),
         expect: 'json',
-        action: action
+        action: checkResponse(action)
       })
     ]
   },
+  // todo: fill dataset, not items
   state: {
-    fillDataset: (props, data) => {
-      console.log(data)
-      return {
-        ...props,
-        items: data.records.map(
-          item => ({
-            date: item.fields.dateheure,
-            temperature: item.fields.tch4,
-            humidity: item.fields.hycha4,
-            no2: item.fields.n2cha4,
-            no: item.fields.nocha4,
-            co2: item.fields.c2cha4
-          })
-        )
-      }
-    }
+    fillDataset: (props, data) => ({
+      ...props,
+      items: data.records.map(
+        item => ({
+          date: item.fields.dateheure,
+          temperature: item.fields.tch4,
+          humidity: item.fields.hycha4,
+          no2: item.fields.n2cha4,
+          no: item.fields.nocha4,
+          co2: item.fields.c2cha4
+        })
+      )
+    })
   }
 }

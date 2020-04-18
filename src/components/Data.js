@@ -1,6 +1,5 @@
 import { h } from 'hyperapp'
 
-// eslint-disable-next-line no-unused-vars
 export const data = (props, dataActions) =>
   h('div', {}, [
     h('fieldset', {}, [
