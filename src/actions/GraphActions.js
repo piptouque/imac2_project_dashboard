@@ -66,8 +66,12 @@ export const graphActions = {
       ]
     }),
     // eslint-disable-next-line fp/no-rest-parameters
-    addGraph: (props, { callback }, ...args) => {
+    addGraph: (props, { ...payload }) => {
       const nodeId = props.getNextNodeId()
+      const callback = payload.callback
+      const args = Object.entries(payload)
+        .filter(entry => entry[0] !== 'callback')
+        .map(entry => entry[1])
       return {
         ...props,
         graphs: [
@@ -76,7 +80,7 @@ export const graphActions = {
             isSet: false,
             chart: null,
             callback: callback,
-            args
+            args: args
           }
         ]
       }
@@ -85,11 +89,11 @@ export const graphActions = {
       graphActions.state.addGraph(
         props,
         {
-          callback: graphActions.utils.createBar
-        },
-        title,
-        labels,
-        data
+          callback: graphActions.utils.createBar,
+          title,
+          labels,
+          data
+        }
       ),
     addBarWhatever: props =>
       graphActions.state.addBar(
