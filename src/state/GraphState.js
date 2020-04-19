@@ -15,14 +15,14 @@ const datasetIds = {
   roosevelt: 'qualite-de-lair-mesuree-dans-la-station-franklin-d-roosevelt'
 }
 
-const datasetLabels = datasetId => {
+export const labelNames = datasetId => {
   const date = 'dateheure'
   switch (datasetId) {
     case datasetIds.auber:
       return {
         date,
         no: 'noauba',
-        no2: 'b2auba',
+        no2: 'n2auba',
         pm10: '10auba',
         pm25: '25auba',
         co2: 'c2auba',
@@ -35,7 +35,7 @@ const datasetLabels = datasetId => {
         no: 'nocha4',
         no2: 'n2cha4',
         pm10: '10cha4',
-        pm25: null,
+        // pm25: null,
         co2: 'c2cha4',
         temp: 'tcha4',
         humi: 'hycha4'
@@ -46,7 +46,7 @@ const datasetLabels = datasetId => {
         no: 'nofra1',
         no2: 'n2fra1',
         pm10: '10fra1',
-        pm25: null,
+        // pm25: null,
         co2: 'c2fra1',
         temp: 'tfra1',
         humi: 'hyfra1'
@@ -73,21 +73,10 @@ export const initGraphState = {
     // eslint-disable-next-line fp/no-mutation
     getNextNodeId: () => 'canvas_' + initGraphState.params.__nextNodeId++,
     datasetIds: datasetIds,
-    datasetLabels: datasetLabels,
+    labelNames: labelNames,
     graphTypes: graphTypes,
     /* Array<Chart>() */
     graphDivId: 'graph_div',
     graphClass: 'canvas'
-  },
-  datasets: [
-    {
-      /* example */
-      id: datasetIds.chatelet,
-      labels: ['no2', 'humidite'],
-      data: [
-        [0, 2, 4, 2, 0],
-        [99, 33, 666, 42, 88]
-      ]
-    }
-  ]
+  }
 }
