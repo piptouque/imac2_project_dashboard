@@ -47,10 +47,11 @@ export const graphActions = {
         options: { title: { display: true, text: params.title } }
       })
     },
-    chartArgsFromParams: params => ({
+    chartArgsFromParams: (params, args) => ({
       type: params.type,
       data: {
-        labels: params.names
+        labels: params.names,
+        data: args && args.data
       },
       options: { title: { display: true, text: params.title } }
     }),
@@ -84,7 +85,7 @@ export const graphActions = {
       const updatedParams = { ...graph.params, ...params }
       const args =
         data === undefined
-          ? graphActions.utils.chartArgsFromParams(updatedParams)
+          ? graphActions.utils.chartArgsFromParams(updatedParams, graph.args)
           : graphActions.utils.chartArgsFromData(updatedParams, data)
       const updatedChart = {
         ...graph,

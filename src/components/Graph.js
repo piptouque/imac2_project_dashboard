@@ -1,14 +1,16 @@
 import { h } from 'hyperapp'
 
-const effectUpdateData = (graphActions, graph, { datasetId, rows }) =>
+const effectUpdateData = (graphActions, graphId, { datasetId, rows }) =>
   graphActions.effects.effectFetch(
     (props, data) => {
+      console.log(props)
+      const graph = graphActions.utils.getGraphFromNodeId(props.graph.graphs, graphId)
       return graphActions.state.updateGraph(
         props,
         {
           nodeId: graph.nodeId,
-          params: graph.params,
-          data: data
+          data: data,
+          ...graph.params
         }
       )
     },
@@ -80,7 +82,7 @@ const graphInputText = (nodeId, name, action, eventKey) =>
 const graphInterface = (props, graphActions, graph) => {
   const fxUpdate = effectUpdateData(
     graphActions,
-    graph,
+    graph.nodeId,
     {
       datasetId: graph.params.datasetId,
       rows: graph.params.rows
@@ -121,7 +123,10 @@ const graphInterface = (props, graphActions, graph) => {
       'Grandeurs',
       Object.keys(props.params.labelNames(graph.params.datasetId)),
       Object.keys(props.params.labelNames(graph.params.datasetId)),
-      { action: graphActions.state.updateGraph },
+      {
+        action: graphActions.state.updateGraph,
+        effects: fxUpdate
+      },
       'names',
       true
     ),
@@ -131,8 +136,14 @@ const graphInterface = (props, graphActions, graph) => {
       {
         action: graphActions.state.updateGraph,
         effects: fxUpdate
-      }
-    )
+      },
+      'rows'
+    ),
+    h('br', {}, []),
+    h('p', {}, 'Date de Début'),
+    h('input', { type: 'date' }),
+    h('p', {}, 'Date de Fin'),
+    h('input', { type: 'date' })
   ])
 }
 
@@ -146,9 +157,7 @@ const newGraphInterface = (props, graphActions) =>
         {
           type: 'line',
           datasetId: props.params.datasetIds.chatelet,
-          title: 'Essai graph',
-          names: ['zero', 'un', 'deux'],
-          data: [0, 1, 2]
+          title: 'Nouveau graph'
         }
       ]
     })
