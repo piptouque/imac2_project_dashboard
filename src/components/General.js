@@ -8,7 +8,8 @@ const chooseGraphToShow = (props, dataNumber) => {
   }
 }
 
-export const general = (props, graphActions) =>
+/* will also need dataActions, eventually */
+export const general = (state, actions) =>
   h('div', {}, [
     h('fieldset', {}, [
       h('legend', {}, 'Traitement des données'),
