@@ -6,7 +6,7 @@ import { graphActions } from '../actions/GraphActions'
 const onChangeGraph = (state, [element, change]) => {
   switch (change.type) {
     case 'added':
-      return graphActions.state.setGraph(state, { nodeId: element.id, ctx: element })
+      return graphActions.state.setContextGraph(state, { nodeId: element.id, ctx: element })
     case 'removed':
       /*
        * Nothing to do, the removeGraph action already unsets everything.

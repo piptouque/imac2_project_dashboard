@@ -2,7 +2,6 @@
 import { infoActions } from './InfoActions'
 import { clockActions } from './ClockActions'
 import { graphActions } from './GraphActions'
-import { dataActions } from './DataActions'
 
 import { mapEntriesState } from '../utils'
 
@@ -14,7 +13,6 @@ const mapActions = actions => ({
 export const actions = {
   clock: mapActions(clockActions),
   graph: mapActions(graphActions),
-  data: mapActions(dataActions),
   /* need no mapping for miscellaneous actions */
   misc: infoActions
 }

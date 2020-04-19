@@ -1,61 +1,136 @@
 
 import { Chart } from 'chart.js'
+import { request } from '@hyperapp/http'
+
+import { labelNames } from '../state/GraphState'
+
+const makeFetchURL = (datasetId, rows) => {
+  const appendRows = rows === undefined ? '' : `&rows=${rows}`
+  const baseURL = `https://data.ratp.fr/api/records/1.0/search/?dataset=${datasetId}`
+  return baseURL + appendRows
+}
+
+const checkResponse = action =>
+  (props, data) => {
+    /*
+     * Here we make sure the data we got
+     * in response to our HTTP request
+     * is valid.
+     * If it is, we go through with the action
+     * If it isn't, we should instead return the state unmodified
+     */
+    // console.log(data)
+    /* silly test for now */
+    // todo: find a better test
+    const isValid = data => data !== undefined && data.parameters !== undefined && data.records !== undefined
+    return isValid(data) ? action(props, data) : state => ({ ...state })
+  }
 
 export const graphActions = {
   stateKey: 'graph',
   actionsKey: 'state',
   utils: {
-    createDataset: (name, data) => ({ data, label: name }),
-    createBar: (ctx, title, labels, data) =>
-      new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels: labels,
-          datasets: [{
-            data: data
-          }]
-        },
-        options: { title: { display: true, text: title } }
-      }),
-    createLine: (ctx, title, x, dataset) =>
-      new Chart(ctx, {
-        type: 'line',
-        data: { labels: x, datasets: dataset },
-        options: { title: { display: true, text: title } }
-      }),
-
-    createPie: (ctx, title, labels, data) =>
-      new Chart(ctx, {
-        type: 'pie',
-        data: {
-          labels: labels,
-          datasets: [{
-            label: 'TODO',
-            data: data
-          }]
-        },
-        options: { title: { display: true, text: title } }
-      }),
-    getGraphFromNodeId: (graphs, nodeId) => graphs.find(graph => graph.nodeId === nodeId),
-    setChart: (graph, ctx) => ({
-      ...graph,
-      isSet: true,
-      chart: graph.callback(
-        ctx,
-        ...graph.args
+    chartArgsFromData: (params, data) => {
+      const labels = labelNames(params.datasetId)
+      const datasets = params.names.map(
+        name => ({
+          label: labels[name],
+          data: data.records.map(record => record.fields[labels[name]])
+        })
       )
-    })
+      return ({
+        type: params.type,
+        data: {
+          labels: params.names,
+          datasets: datasets
+        },
+        options: { title: { display: true, text: params.title } }
+      })
+    },
+    chartArgsFromParams: params => ({
+      type: params.type,
+      data: {
+        labels: params.names
+      },
+      options: { title: { display: true, text: params.title } }
+    }),
+    freeChart: chart => {
+      /* Should be called before setting the chart again */
+      chart.destroy()
+    },
+    createChart: (ctx, args) => new Chart(ctx, { ...args }),
+    getGraphFromNodeId: (graphs, nodeId) => graphs.find(graph => graph.nodeId === nodeId),
+    setContextChart: (graph, ctx) => {
+      /*
+       * We need to delete the chart
+       * in case it has already been set
+       * see:
+       * https://stackoverflow.com/questions/24815851/how-to-clear-a-chart-from-a-canvas-so-that-hover-events-cannot-be-triggered
+       */
+      if (graph.chart !== null) {
+        graphActions.utils.freeChart(graph.chart)
+      }
+      return ({
+        ...graph,
+        isSet: true,
+        ctx: ctx,
+        chart: graphActions.utils.createChart(
+          ctx,
+          graph.args
+        )
+      })
+    },
+    updateChart: (graph, { params, data }) => {
+      const updatedParams = { ...graph.params, ...params }
+      const args =
+        data === undefined
+          ? graphActions.utils.chartArgsFromParams(updatedParams)
+          : graphActions.utils.chartArgsFromData(updatedParams, data)
+      const updatedChart = {
+        ...graph,
+        params: updatedParams,
+        args: args
+      }
+      return graph.isSet
+        ? graphActions.utils.setContextChart(updatedChart, updatedChart.ctx)
+        : updatedChart
+    }
   },
+  effects: {
+    effectFetch: (action, datasetId, rows) =>
+      request({
+        url: makeFetchURL(datasetId, rows),
+        expect: 'json',
+        action: checkResponse(action)
+      }),
+    fetchDataset: (action, datasetId, rows) => state => [
+      state,
+      graphActions.effects.effectFetch(action, datasetId, rows)
+    ]
+  },
+  // todo: fill dataset, not items
   state: {
-    setGraph: (props, { nodeId, ctx }) => ({
+    setContextGraph: (props, { nodeId, ctx }) => ({
       ...props,
       graphs: [
         ...props.graphs.filter(graph => graph.nodeId !== nodeId),
-        graphActions.utils.setChart(
+        graphActions.utils.setContextChart(
           graphActions.utils.getGraphFromNodeId(
             props.graphs, nodeId
           ),
           ctx
+        )
+      ]
+    }),
+    updateGraph: (props, { nodeId, data, ...params }) => ({
+      ...props,
+      graphs: [
+        ...props.graphs.filter(graph => graph.nodeId !== nodeId),
+        graphActions.utils.updateChart(
+          graphActions.utils.getGraphFromNodeId(
+            props.graphs, nodeId
+          ),
+          { params, data }
         )
       ]
     }),
@@ -65,10 +140,8 @@ export const graphActions = {
         ...props.graphs.filter(graph => graph.nodeId !== nodeId)
       ]
     }),
-    // eslint-disable-next-line fp/no-rest-parameters
-    addGraph: (props, { callback, ...payload }) => {
-      const nodeId = props.getNextNodeId()
-      const args = Object.values(payload)
+    addGraph: (props, params) => {
+      const nodeId = props.params.getNextNodeId()
       return {
         ...props,
         graphs: [
@@ -76,30 +149,12 @@ export const graphActions = {
             nodeId: nodeId,
             isSet: false,
             chart: null,
-            callback: callback,
-            args: args
+            ctx: null,
+            params: params,
+            args: graphActions.utils.chartArgsFromParams(params)
           }
         ]
       }
-    },
-    addBar: (props, { title, labels, data }) =>
-      graphActions.state.addGraph(
-        props,
-        {
-          callback: graphActions.utils.createBar,
-          title,
-          labels,
-          data
-        }
-      ),
-    addBarWhatever: props =>
-      graphActions.state.addBar(
-        props,
-        {
-          title: "Qu'importe",
-          labels: ['Coucou', 'ça', 'va', '?'],
-          data: [0, 1, 2, 3]
-        }
-      )
+    }
   }
 }
