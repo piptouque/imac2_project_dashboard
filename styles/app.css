@@ -1,0 +1,17 @@
+@import url("https://fonts.googleapis.com/css?family=Roboto+Mono");
+ 
+body {
+	display: flex;
+  padding-top: 50px;
+  background: white;
+  justify-content: center;
+  font-family: arial;
+}
+ 
+div
+ {font-family: arial;}
+
+h1{font-size: 25px;}
+
+h2{font-size: 18px;}
+
