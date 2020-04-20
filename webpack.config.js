@@ -1,12 +1,12 @@
 const webpack = require('webpack')
 const path = require('path')
 const pkg = require('./package.json')
-const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const libraryName = pkg.name
+const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 
 const plugins = [
-  new MiniCssExtractPlugin(),
-  new webpack.optimize.ModuleConcatenationPlugin()
+  new webpack.optimize.ModuleConcstenationPlugin(),
+  new MiniCssExtractPlugin()
 ]
 
 const config = {

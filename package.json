@@ -24,6 +24,7 @@
     "babel-loader": "^8.0.6",
     "chai": "^4.2.0",
     "css-loader": "^3.4.2",
+    "mini-css-extract-plugin": "^0.9.0",
     "eslint": "^6.7.2",
     "eslint-config-standard": "^14.1.0",
     "eslint-loader": "^3.0.2",
@@ -33,7 +34,6 @@
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-react": "^7.19.0",
     "eslint-plugin-standard": "^4.0.1",
-    "mini-css-extract-plugin": "^0.9.0",
     "mocha": "^7.1.0",
     "node-libs-browser": "^2.2.1",
     "sinon": "^9.0.0",
@@ -47,7 +47,6 @@
     "@hyperapp/events": "^0.0.4",
     "@hyperapp/http": "^0.0.2",
     "hyperapp": "^2.0.4",
-    "axios": "^0.19.2",
     "chart.js": "^2.9.3"
   }
 }
