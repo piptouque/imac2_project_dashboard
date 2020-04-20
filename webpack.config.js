@@ -5,7 +5,7 @@ const libraryName = pkg.name
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 
 const plugins = [
-  new webpack.optimize.ModuleConcstenationPlugin(),
+  new webpack.optimize.ModuleConcatenationPlugin(),
   new MiniCssExtractPlugin()
 ]
 
