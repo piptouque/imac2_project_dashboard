@@ -15,7 +15,7 @@ const datasetIds = {
   roosevelt: 'qualite-de-lair-mesuree-dans-la-station-franklin-d-roosevelt'
 }
 
-export const labelNames = datasetId => {
+export const namesToLabels = datasetId => {
   const date = 'dateheure'
   switch (datasetId) {
     case datasetIds.auber:
@@ -67,13 +67,14 @@ const graphTypes = {
 export const initGraphState = {
   graphs: [],
   params: {
+    baseUrl: 'https://data.ratp.fr/api/records/1.0/search/',
     /* private */
     __nextNodeId: 0,
     /* public */
     // eslint-disable-next-line fp/no-mutation
     getNextNodeId: () => 'canvas_' + initGraphState.params.__nextNodeId++,
     datasetIds: datasetIds,
-    labelNames: labelNames,
+    namesToLabels: namesToLabels,
     graphTypes: graphTypes,
     /* Array<Chart>() */
     graphDivId: 'graph_div',

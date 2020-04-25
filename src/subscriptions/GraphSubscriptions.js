@@ -20,6 +20,7 @@ const onChangeGraph = (state, [element, change]) => {
     default:
       break
   }
+  return ({ ...state })
 }
 
 // eslint-disable-next-line no-unused-vars

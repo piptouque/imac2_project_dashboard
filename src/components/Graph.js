@@ -1,12 +1,11 @@
 import { h } from 'hyperapp'
 
-const effectUpdateData = (graphActions, graphId, { datasetId, rows }) =>
+const effectUpdateData = (graphActions, graphIndex, baseUrl) =>
   graphActions.effects.effectFetch(
-    (props, data) => {
-      console.log(props)
-      const graph = graphActions.utils.getGraphFromNodeId(props.graph.graphs, graphId)
+    (state, data) => {
+      const graph = state.graph.graphs[graphIndex]
       return graphActions.state.updateGraph(
-        props,
+        state,
         {
           nodeId: graph.nodeId,
           data: data,
@@ -14,8 +13,13 @@ const effectUpdateData = (graphActions, graphId, { datasetId, rows }) =>
         }
       )
     },
-    datasetId,
-    rows
+    {
+      baseUrl: baseUrl,
+      config: {
+        dataset: ['graph', 'graphs', graphIndex, 'params', 'datasetId'],
+        rows: ['graph', 'graphs', graphIndex, 'params', 'rows']
+      }
+    }
   )
 
 const getSelectedOptions = (event, isMultiple) => {
@@ -26,12 +30,8 @@ const getSelectedOptions = (event, isMultiple) => {
   return isMultiple ? selectedValues : selectedValues[0]
 }
 
-const graphSelect = (nodeId, name, values, texts, { action, effects }, eventKey, isMultiple) => {
+const graphSelect = (nodeId, name, values, texts, onChange, eventKey, isMultiple) => {
   const eventSelected = event => ({ nodeId, [eventKey]: getSelectedOptions(event, isMultiple) })
-  const onChange =
-    effects === undefined
-      ? action
-      : (props, payload) => [action(props, payload), effects]
   return h('select', {
     name: name,
     class: 'graph_select',
@@ -45,12 +45,8 @@ const graphSelect = (nodeId, name, values, texts, { action, effects }, eventKey,
   )
 }
 
-const graphInputNumber = (nodeId, name, { action, effects }, eventKey) => {
-  const onChange =
-    effects === undefined
-      ? action
-      : (props, payload) => [action(props, payload), effects]
-  return h('input', {
+const graphInputNumber = (nodeId, name, onChange, eventKey) =>
+  h('input', {
     type: 'number',
     placeholder: name,
     max: 300,
@@ -63,15 +59,14 @@ const graphInputNumber = (nodeId, name, { action, effects }, eventKey) => {
       })
     ]
   })
-}
 
-const graphInputText = (nodeId, name, action, eventKey) =>
+const graphInputText = (nodeId, name, onChange, eventKey) =>
   h('input', {
     type: 'text',
     placeholder: name,
     maxlength: 20,
     onchange: [
-      action,
+      onChange,
       event => ({
         nodeId,
         [eventKey]: event.target.value
@@ -79,16 +74,36 @@ const graphInputText = (nodeId, name, action, eventKey) =>
     ]
   })
 
-const graphInterface = (props, graphActions, graph) => {
-  const fxUpdate = effectUpdateData(
-    graphActions,
-    graph.nodeId,
-    {
-      datasetId: graph.params.datasetId,
-      rows: graph.params.rows
-    }
-  )
-  return h('div', { class: 'graph_interface' }, [
+const graphInputButton = (nodeId, name, onClick) =>
+  h('input', {
+    type: 'button',
+    value: name,
+    onclick: [onClick, { nodeId }]
+  })
+
+const graphViewInterfaceType = (props, graphActions, graph) => {
+  if (!graph.isSet || !graph.params.names) {
+    return null
+  }
+  switch (graph.params.type) {
+    case 'line':
+      return graphSelect(
+        graph.nodeId,
+        'Abscisses',
+        Object.values(graph.params.names),
+        Object.values(graph.params.names),
+        graphActions.state.updateGraph,
+        'x',
+        false)
+    case 'bar':
+    case 'pie':
+      break
+  }
+  return null
+}
+
+const graphViewInterface = (props, graphActions, graph) =>
+  h('div', { class: 'graph_interface' }, [
     graphInputText(
       graph.nodeId,
       'Nom du graph',
@@ -100,58 +115,80 @@ const graphInterface = (props, graphActions, graph) => {
       'Type',
       Object.values(props.params.graphTypes),
       Object.keys(props.params.graphTypes),
-      {
-        action: graphActions.state.updateGraph,
-        effects: fxUpdate
-      },
+      graphActions.state.updateGraph,
       'type',
       false
     ),
+    graphViewInterfaceType(props, graphActions, graph)
+  ])
+
+const graphDataInterface = (props, graphActions, graph) => {
+  const fxDataUpdate = effectUpdateData(
+    graphActions,
+    graphActions.utils.graphIndexFromId(props.graphs, graph.nodeId),
+    props.params.baseUrl
+  )
+  const onChange = ({ action, effects }) =>
+    effects === undefined
+      ? action
+      : (props, payload) => [action(props, payload), effects]
+  return h('div', { class: 'graph_interface' }, [
     graphSelect(
       graph.nodeId,
       'Base de données',
       Object.values(props.params.datasetIds),
       Object.keys(props.params.datasetIds),
-      {
+      onChange({
+        // effects: fxDataUpdate,
         action: graphActions.state.updateGraph
-      },
+      }),
       'datasetId',
       false
     ),
     graphSelect(
       graph.nodeId,
       'Grandeurs',
-      Object.keys(props.params.labelNames(graph.params.datasetId)),
-      Object.keys(props.params.labelNames(graph.params.datasetId)),
-      {
-        action: graphActions.state.updateGraph,
-        effects: fxUpdate
-      },
+      Object.keys(props.params.namesToLabels(graph.params.datasetId)),
+      Object.keys(props.params.namesToLabels(graph.params.datasetId)),
+      onChange({
+        // effects: fxDataUpdate,
+        action: graphActions.state.updateGraph
+      }),
       'names',
       true
     ),
     graphInputNumber(
       graph.nodeId,
       'Nombre de résultats',
-      {
-        action: graphActions.state.updateGraph,
-        effects: fxUpdate
-      },
+      onChange({
+        // effects: fxDataUpdate,
+        action: graphActions.state.updateGraph
+      }),
       'rows'
     ),
-    h('br', {}, []),
-    h('p', {}, 'Date de Début'),
-    h('input', { type: 'date' }),
-    h('p', {}, 'Date de Fin'),
-    h('input', { type: 'date' })
+    graphInputButton(
+      graph.nodeId,
+      'Rechercher',
+      onChange({
+        effects: fxDataUpdate,
+        action: graphActions.state.updateGraph
+      })
+    ),
+    graphInputButton(
+      graph.nodeId,
+      'Supprimer',
+      onChange({
+        action: graphActions.state.removeGraph
+      })
+    )
   ])
 }
 
 const newGraphInterface = (props, graphActions) =>
   h('div', { class: 'graph_interface' }, [
-    h('span', {}, 'État: ajouter un graph'),
     h('input', {
       type: 'button',
+      value: 'Ajouter un graph',
       onclick: [
         graphActions.state.addGraph,
         {
@@ -165,7 +202,9 @@ const newGraphInterface = (props, graphActions) =>
 
 const displayGraph = (props, graphActions, graph, graphClass) =>
   h('div', { class: props.params.graphDivId }, [
-    graphInterface(props, graphActions, graph),
+    graphDataInterface(props, graphActions, graph),
+    h('br', {}, []),
+    graphViewInterface(props, graphActions, graph),
     h('canvas', {
       id: graph.nodeId,
       class: graphClass
@@ -173,7 +212,7 @@ const displayGraph = (props, graphActions, graph, graphClass) =>
   ])
 
 const displayAllGraphs = (props, graphActions) =>
-  h('div', {}, [
+  h('div', { class: props.params.graphDivId }, [
     props.graphs.map(
       graph => displayGraph(props, graphActions, graph, props.params.graphClass)
     )
@@ -186,7 +225,7 @@ const allGraphsInterface = (props, graphActions) =>
   ])
 
 export const graph = (props, graphActions) =>
-  h('div', {}, [
+  h('div', { id: 'graph_root' }, [
     h('fieldset', {}, [
       h('legend', {}, 'Graphs'),
       allGraphsInterface(props, graphActions)
