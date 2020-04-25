@@ -45,6 +45,34 @@ const graphSelect = (nodeId, name, values, texts, onChange, eventKey, isMultiple
   )
 }
 
+const graphInputButton = (nodeId, name, onClick) =>
+  h('input', {
+    type: 'button',
+    value: name,
+    onclick: [onClick, { nodeId }]
+  })
+
+const graphViewInterfaceType = (props, graphActions, graph) => {
+  if (!graph.isSet || !graph.params.names) {
+    return null
+  }
+  switch (graph.params.type) {
+    case 'line':
+      return graphSelect(
+        graph.nodeId,
+        'Abscisses',
+        Object.values(graph.params.names),
+        Object.values(graph.params.names),
+        graphActions.state.updateGraph,
+        'x',
+        false)
+    case 'bar':
+    case 'pie':
+      break
+  }
+  return null
+}
+
 const graphInputNumber = (nodeId, name, onChange, eventKey) =>
   h('input', {
     type: 'number',
@@ -75,7 +103,7 @@ const graphInputText = (nodeId, name, onChange, eventKey) =>
   })
 
 const graphViewInterface = (props, graphActions, graph) =>
-  return h('div', { class: 'graph_interface' }, [
+  h('div', { class: 'graph_interface' }, [
     h('button', {
       onclick: [function show () {
         // eslint-disable-next-line no-var
