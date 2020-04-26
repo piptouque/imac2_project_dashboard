@@ -1,5 +1,5 @@
 import { h } from 'hyperapp'
-import { graphActions } from '../actions/GraphActions'
+// import { graphActions } from '../actions/GraphActions'
 
 const effectUpdateData = (graphActions, graphIndex, baseUrl) =>
   graphActions.effects.effectFetch(
@@ -286,7 +286,7 @@ const displayAllGraphs = (props, graphActions) =>
   ])
 
 const displayDefaultGraphs = (props, graphActions) =>
-  h('div',{},[
+  h('div', {}, [
     defaultGraphChatelet(props, graphActions),
     defaultGraphAubert(props, graphActions),
     defaultGraphRoosevelt(props, graphActions)

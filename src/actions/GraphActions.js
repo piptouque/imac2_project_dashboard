@@ -80,9 +80,7 @@ export const graphActions = {
     },
     listFromData: (params, names, data) => {
       const xLabel = namesToLabels(params.datasetId)[params.x] === undefined ? namesToLabels(params.datasetId).date : namesToLabels(params.datasetId)[params.x]
-      console.log(xLabel)
       const lab = xLabel === 'dateheure' ? graphActions.utils.convertDate(graphActions.utils.chartFieldsFromData(xLabel, data)) : graphActions.utils.chartFieldsFromData(xLabel, data)
-      console.log(lab)
       return names && params.type === 'line'
         ? lab
         : names
