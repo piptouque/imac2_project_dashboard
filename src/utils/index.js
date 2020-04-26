@@ -20,3 +20,12 @@ export const mapEntriesState = (subActions, stateKey) =>
         )
       )
   )
+
+// Pretty silly, but whatever
+export const mapEffect = ([fx, props], stateKey) => [
+  fx,
+  {
+    ...props,
+    action: mapFuncState(props.action, stateKey)
+  }
+]

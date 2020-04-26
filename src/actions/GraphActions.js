@@ -1,6 +1,6 @@
 
 import { Chart } from 'chart.js'
-// import { request } from '@hyperapp/http'
+import { request } from '@hyperapp/http'
 import { requestQuery } from '../effects/request'
 
 import { namesToLabels } from '../state/GraphState'
@@ -32,6 +32,10 @@ export const graphActions = {
   utils: {
     chartFieldsFromData: (label, data) =>
       data.records.map(record => record.fields[label]),
+
+    convertDate: (dates) =>
+      dates.map(date => date.substring(8, 10) + '/' + date.substring(5, 7) + '/' + date.substring(0, 4) + ' à ' + date.substring(11, 13) + 'h'),
+
     labelsFromType: (params, names) => {
       const labels = namesToLabels(params.datasetId)
       return names && names.map(name => labels[name])
@@ -75,9 +79,10 @@ export const graphActions = {
       }
     },
     listFromData: (params, names, data) => {
-      const xLabel = namesToLabels(params.datasetId)[params.x]
+      const xLabel = namesToLabels(params.datasetId)[params.x] === undefined ? namesToLabels(params.datasetId).date : namesToLabels(params.datasetId)[params.x]
+      const lab = xLabel === 'dateheure' ? graphActions.utils.convertDate(graphActions.utils.chartFieldsFromData(xLabel, data)) : graphActions.utils.chartFieldsFromData(xLabel, data)
       return names && params.type === 'line'
-        ? graphActions.utils.chartFieldsFromData(xLabel, data)
+        ? lab
         : names
     },
     chartArgsFromData: (params, data) => {
@@ -99,6 +104,15 @@ export const graphActions = {
       chart.destroy()
     },
     createChart: (ctx, args) => new Chart(ctx, { ...args }),
+    createGraph: (nodeId, params) => ({
+      nodeId: nodeId,
+      isSet: false,
+      displayInfo: false,
+      chart: null,
+      ctx: null,
+      params: params,
+      args: null
+    }),
     getGraphFromNodeId: (graphs, nodeId) => graphs.find(graph => graph.nodeId === nodeId),
     setContextChart: (graph, ctx) => {
       /*
@@ -120,12 +134,13 @@ export const graphActions = {
         )
       })
     },
-    updateChart: (graph, { params, data }) => {
+    updateChart: (graph, { params, displayInfo, data }) => {
       const updatedParams = { ...graph.params, ...params }
       const updatedData = data === undefined ? graph.data : data
       const args = updatedData && graphActions.utils.chartArgsFromData(updatedParams, updatedData)
       const updatedChart = {
         ...graph,
+        displayInfo: displayInfo === undefined ? graph.displayInfo : displayInfo,
         params: updatedParams,
         args: args,
         data: updatedData
@@ -139,13 +154,23 @@ export const graphActions = {
     graphFromId: (graphs, graphId) => graphs[graphActions.utils.graphIndexFromId(graphs, graphId)]
   },
   effects: {
-    effectFetch: (action, { baseUrl, config }) =>
+    effectFetch: (action, { url }) =>
+      request({
+        url: url,
+        expect: 'json',
+        action: checkResponse(action)
+      }),
+    effectFetchQuery: (action, { baseUrl, config }) =>
       requestQuery({
         baseUrl: baseUrl,
         config: config,
         expect: 'json',
         action: checkResponse(action)
       }),
+    fetchDatasetQuery: (action, payload) => state => [
+      state,
+      graphActions.effects.effectFetchQuery(action, payload)
+    ],
     fetchDataset: (action, payload) => state => [
       state,
       graphActions.effects.effectFetch(action, payload)
@@ -165,7 +190,7 @@ export const graphActions = {
         )
       ]
     }),
-    updateGraph: (props, { nodeId, data, ...params }) => ({
+    updateGraph: (props, { nodeId, displayInfo, data, ...params }) => ({
       ...props,
       graphs: [
         ...props.graphs.filter(graph => graph.nodeId !== nodeId),
@@ -173,7 +198,7 @@ export const graphActions = {
           graphActions.utils.getGraphFromNodeId(
             props.graphs, nodeId
           ),
-          { params, data }
+          { params, displayInfo, data }
         )
       ]
     }),
@@ -194,14 +219,7 @@ export const graphActions = {
       return {
         ...props,
         graphs: [
-          ...props.graphs, {
-            nodeId: nodeId,
-            isSet: false,
-            chart: null,
-            ctx: null,
-            params: params,
-            args: null
-          }
+          ...props.graphs, graphActions.utils.createGraph(nodeId, params)
         ]
       }
     }

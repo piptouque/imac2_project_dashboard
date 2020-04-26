@@ -2,19 +2,12 @@
 import { clockSubscriptions } from './ClockSubscriptions'
 import { graphSubscriptions } from './GraphSubscriptions'
 
-import { mapFuncState } from '../utils'
+import { mapEffect } from '../utils'
 
 /*
  *
  */
-// Pretty silly, but whatever
-const mapSubscriptions = ([fx, props], stateKey) => [
-  fx,
-  {
-    ...props,
-    action: mapFuncState(props.action, stateKey)
-  }
-]
+const mapSubscriptions = mapEffect
 
 // eslint-disable-next-line no-unused-vars
 export const subscriptions = init => _state => [
