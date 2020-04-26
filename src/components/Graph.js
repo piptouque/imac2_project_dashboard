@@ -1,4 +1,5 @@
 import { h } from 'hyperapp'
+import { graphActions } from '../actions/GraphActions'
 
 const effectUpdateData = (graphActions, graphIndex, baseUrl) =>
   graphActions.effects.effectFetch(
@@ -87,7 +88,6 @@ const graphInputNumber = (nodeId, name, onChange, eventKey) =>
       })
     ]
   })
-
 const graphInputText = (nodeId, name, onChange, eventKey) =>
   h('input', {
     type: 'text',
@@ -206,6 +206,49 @@ const graphDataInterface = (props, graphActions, graph) => {
     )
   ])
 }
+const defaultGraphChatelet = (props, graphActions) =>
+  h('input', {
+    type: 'button',
+    value: 'Afficher un graph pour Chatelet',
+    onclick: [
+      graphActions.state.addGraph,
+      {
+        type: 'line',
+        datasetId: props.params.datasetIds.chatelet,
+        title: 'no et no2 en fonction du temps à Chatelet',
+        names: ['no2', 'no']
+      }
+    ]
+  })
+const defaultGraphAubert = (props, graphActions) =>
+  h('input', {
+    type: 'button',
+    value: 'Afficher un graph pour Auber',
+    onclick: [
+      graphActions.state.addGraph,
+      {
+        type: 'line',
+        datasetId: props.params.datasetIds.auber,
+        title: 'no et no2 en fonction du temps à Auber',
+        names: ['co2', 'temp']
+      }
+    ]
+  })
+const defaultGraphRoosevelt = (props, graphActions) =>
+  h('input', {
+    type: 'button',
+    value: 'Afficher un graph pour Roosevelt',
+    onclick: [
+      graphActions.state.addGraph,
+      {
+        type: 'line',
+        datasetId: props.params.datasetIds.roosevelt,
+        title: 'no et no2 en fonction du temps à Roosevelt',
+        names: ['co2', 'temp'],
+        rows: 20
+      }
+    ]
+  })
 
 const newGraphInterface = (props, graphActions) =>
   h('div', { class: 'graph_interface' }, [
@@ -242,10 +285,18 @@ const displayAllGraphs = (props, graphActions) =>
     )
   ])
 
+const displayDefaultGraphs = (props, graphActions) =>
+  h('div',{},[
+    defaultGraphChatelet(props, graphActions),
+    defaultGraphAubert(props, graphActions),
+    defaultGraphRoosevelt(props, graphActions)
+  ])
+
 const allGraphsInterface = (props, graphActions) =>
   h('div', { class: props.params.graphDivId }, [
     displayAllGraphs(props, graphActions),
-    newGraphInterface(props, graphActions)
+    newGraphInterface(props, graphActions),
+    displayDefaultGraphs(props, graphActions)
   ])
 
 export const graph = (props, graphActions) =>

@@ -32,6 +32,10 @@ export const graphActions = {
   utils: {
     chartFieldsFromData: (label, data) =>
       data.records.map(record => record.fields[label]),
+
+    convertDate: (dates) =>
+      dates.map(date => date.substring(8, 10) + '/' + date.substring(5, 7) + '/' + date.substring(0, 4) + ' à ' + date.substring(11, 13) + 'h'),
+
     labelsFromType: (params, names) => {
       const labels = namesToLabels(params.datasetId)
       return names && names.map(name => labels[name])
@@ -75,9 +79,12 @@ export const graphActions = {
       }
     },
     listFromData: (params, names, data) => {
-      const xLabel = namesToLabels(params.datasetId)[params.x]
+      const xLabel = namesToLabels(params.datasetId)[params.x] === undefined ? namesToLabels(params.datasetId).date : namesToLabels(params.datasetId)[params.x]
+      console.log(xLabel)
+      const lab = xLabel === 'dateheure' ? graphActions.utils.convertDate(graphActions.utils.chartFieldsFromData(xLabel, data)) : graphActions.utils.chartFieldsFromData(xLabel, data)
+      console.log(lab)
       return names && params.type === 'line'
-        ? graphActions.utils.chartFieldsFromData(xLabel, data)
+        ? lab
         : names
     },
     chartArgsFromData: (params, data) => {
