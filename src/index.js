@@ -8,6 +8,8 @@ import { initState } from './state/index'
 // eslint-disable-next-line no-unused-vars
 import { subscriptions } from './subscriptions'
 
+import '../styles/app.css'
+
 /*
  * Since Hyperapp 2.0, the actions are not given
  * as a field to App, but called from the global scope

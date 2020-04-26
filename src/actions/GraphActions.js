@@ -1,14 +1,9 @@
 
 import { Chart } from 'chart.js'
-import { request } from '@hyperapp/http'
+// import { request } from '@hyperapp/http'
+import { requestQuery } from '../effects/request'
 
-import { labelNames } from '../state/GraphState'
-
-const makeFetchURL = (datasetId, rows) => {
-  const appendRows = rows === undefined ? '' : `&rows=${rows}`
-  const baseURL = `https://data.ratp.fr/api/records/1.0/search/?dataset=${datasetId}`
-  return baseURL + appendRows
-}
+import { namesToLabels } from '../state/GraphState'
 
 const checkResponse = action =>
   (props, data) => {
@@ -19,42 +14,86 @@ const checkResponse = action =>
      * If it is, we go through with the action
      * If it isn't, we should instead return the state unmodified
      */
-    // console.log(data)
     /* silly test for now */
     // todo: find a better test
     const isValid = data => data !== undefined && data.parameters !== undefined && data.records !== undefined
     return isValid(data) ? action(props, data) : state => ({ ...state })
   }
 
+const randomHexColour = () =>
+  '#000000'.replace(
+    /0/g,
+    () => Math.floor(Math.random() * 16).toString(16)
+  )
+
 export const graphActions = {
   stateKey: 'graph',
   actionsKey: 'state',
   utils: {
+    chartFieldsFromData: (label, data) =>
+      data.records.map(record => record.fields[label]),
+    labelsFromType: (params, names) => {
+      const labels = namesToLabels(params.datasetId)
+      return names && names.map(name => labels[name])
+    },
+    namesFromType: (params) => {
+      return params.names && params.type === 'line'
+        ? params.names.filter(name => name !== params.x)
+        : params.names
+    },
+    datasetsFromData: (params, names, labels, data) => {
+      const inData = label => graphActions.utils.chartFieldsFromData(label, data)
+      switch (params.type) {
+        case 'line':
+          return labels.map(
+            (label, index) => ({
+              label: names[index],
+              data: inData(label),
+              borderColor: randomHexColour(),
+              fill: false
+            })
+          )
+        case 'bar':
+          return labels.map(
+            (label, index) => ({
+              label: names[index],
+              data: inData(label),
+              backgroundColor: randomHexColour()
+            })
+          )
+        case 'pie':
+          return labels.map(
+            (label, index) => ({
+              label: names[index],
+              data: inData(label),
+              // eslint-disable-next-line no-unused-vars
+              backgroundColor: inData(label).map(_ => randomHexColour())
+            })
+          )
+        default:
+          return null
+      }
+    },
+    listFromData: (params, names, data) => {
+      const xLabel = namesToLabels(params.datasetId)[params.x]
+      return names && params.type === 'line'
+        ? graphActions.utils.chartFieldsFromData(xLabel, data)
+        : names
+    },
     chartArgsFromData: (params, data) => {
-      const labels = labelNames(params.datasetId)
-      const datasets = params.names.map(
-        name => ({
-          label: labels[name],
-          data: data.records.map(record => record.fields[labels[name]])
-        })
-      )
+      const names = graphActions.utils.namesFromType(params)
+      const labels = graphActions.utils.labelsFromType(params, names)
+      const datasets = labels && names && graphActions.utils.datasetsFromData(params, names, labels, data)
+      const listLabels = names && graphActions.utils.listFromData(params, names, data)
       return ({
         type: params.type,
         data: {
-          labels: params.names,
+          labels: listLabels,
           datasets: datasets
         },
         options: { title: { display: true, text: params.title } }
       })
     },
-    chartArgsFromParams: (params, args) => ({
-      type: params.type,
-      data: {
-        labels: params.names,
-        data: args && args.data
-      },
-      options: { title: { display: true, text: params.title } }
-    }),
     freeChart: chart => {
       /* Should be called before setting the chart again */
       chart.destroy()
@@ -68,7 +107,7 @@ export const graphActions = {
        * see:
        * https://stackoverflow.com/questions/24815851/how-to-clear-a-chart-from-a-canvas-so-that-hover-events-cannot-be-triggered
        */
-      if (graph.chart !== null) {
+      if (graph.isSet) {
         graphActions.utils.freeChart(graph.chart)
       }
       return ({
@@ -83,30 +122,33 @@ export const graphActions = {
     },
     updateChart: (graph, { params, data }) => {
       const updatedParams = { ...graph.params, ...params }
-      const args =
-        data === undefined
-          ? graphActions.utils.chartArgsFromParams(updatedParams, graph.args)
-          : graphActions.utils.chartArgsFromData(updatedParams, data)
+      const updatedData = data === undefined ? graph.data : data
+      const args = updatedData && graphActions.utils.chartArgsFromData(updatedParams, updatedData)
       const updatedChart = {
         ...graph,
         params: updatedParams,
-        args: args
+        args: args,
+        data: updatedData
       }
       return graph.isSet
         ? graphActions.utils.setContextChart(updatedChart, updatedChart.ctx)
         : updatedChart
-    }
+    },
+    graphIndexFromId: (graphs, graphId) =>
+      graphs.findIndex(graph => graph.nodeId === graphId),
+    graphFromId: (graphs, graphId) => graphs[graphActions.utils.graphIndexFromId(graphs, graphId)]
   },
   effects: {
-    effectFetch: (action, datasetId, rows) =>
-      request({
-        url: makeFetchURL(datasetId, rows),
+    effectFetch: (action, { baseUrl, config }) =>
+      requestQuery({
+        baseUrl: baseUrl,
+        config: config,
         expect: 'json',
         action: checkResponse(action)
       }),
-    fetchDataset: (action, datasetId, rows) => state => [
+    fetchDataset: (action, payload) => state => [
       state,
-      graphActions.effects.effectFetch(action, datasetId, rows)
+      graphActions.effects.effectFetch(action, payload)
     ]
   },
   // todo: fill dataset, not items
@@ -135,12 +177,18 @@ export const graphActions = {
         )
       ]
     }),
-    removeGraph: (props, nodeId) => ({
-      ...props,
-      graphs: [
-        ...props.graphs.filter(graph => graph.nodeId !== nodeId)
-      ]
-    }),
+    removeGraph: (props, { nodeId }) => {
+      const graph = graphActions.utils.graphFromId(props.graphs, nodeId)
+      if (graph.isSet) {
+        graphActions.utils.freeChart(graph.chart)
+      }
+      const updatedProps = {
+        ...props,
+        graphs:
+          props.graphs.filter(graph => graph.nodeId !== nodeId)
+      }
+      return updatedProps
+    },
     addGraph: (props, params) => {
       const nodeId = props.params.getNextNodeId()
       return {
@@ -152,7 +200,7 @@ export const graphActions = {
             chart: null,
             ctx: null,
             params: params,
-            args: graphActions.utils.chartArgsFromParams(params)
+            args: null
           }
         ]
       }
