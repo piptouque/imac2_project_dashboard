@@ -229,8 +229,8 @@ const defaultGraphAubert = (props, graphActions) =>
       {
         type: 'line',
         datasetId: props.params.datasetIds.auber,
-        title: 'no et no2 en fonction du temps à Auber',
-        names: ['co2', 'temp']
+        title: 'no et température en fonction du temps à Auber',
+        names: ['no', 'temp']
       }
     ]
   })
@@ -243,7 +243,7 @@ const defaultGraphRoosevelt = (props, graphActions) =>
       {
         type: 'line',
         datasetId: props.params.datasetIds.roosevelt,
-        title: 'no et no2 en fonction du temps à Roosevelt',
+        title: 'co2 et température en fonction du temps à Roosevelt',
         names: ['co2', 'temp'],
         rows: 20
       }
