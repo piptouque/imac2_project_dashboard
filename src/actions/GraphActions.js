@@ -120,12 +120,13 @@ export const graphActions = {
         )
       })
     },
-    updateChart: (graph, { params, data }) => {
+    updateChart: (graph, { params, displayInfo, data }) => {
       const updatedParams = { ...graph.params, ...params }
       const updatedData = data === undefined ? graph.data : data
       const args = updatedData && graphActions.utils.chartArgsFromData(updatedParams, updatedData)
       const updatedChart = {
         ...graph,
+        displayInfo: displayInfo === undefined ? graph.displayInfo : displayInfo,
         params: updatedParams,
         args: args,
         data: updatedData
@@ -165,7 +166,7 @@ export const graphActions = {
         )
       ]
     }),
-    updateGraph: (props, { nodeId, data, ...params }) => ({
+    updateGraph: (props, { nodeId, displayInfo, data, ...params }) => ({
       ...props,
       graphs: [
         ...props.graphs.filter(graph => graph.nodeId !== nodeId),
@@ -173,7 +174,7 @@ export const graphActions = {
           graphActions.utils.getGraphFromNodeId(
             props.graphs, nodeId
           ),
-          { params, data }
+          { params, displayInfo, data }
         )
       ]
     }),
@@ -197,6 +198,7 @@ export const graphActions = {
           ...props.graphs, {
             nodeId: nodeId,
             isSet: false,
+            displayInfo: false,
             chart: null,
             ctx: null,
             params: params,
