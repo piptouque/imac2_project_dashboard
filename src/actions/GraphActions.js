@@ -1,6 +1,6 @@
 
 import { Chart } from 'chart.js'
-// import { request } from '@hyperapp/http'
+import { request } from '@hyperapp/http'
 import { requestQuery } from '../effects/request'
 
 import { namesToLabels } from '../state/GraphState'
@@ -104,6 +104,15 @@ export const graphActions = {
       chart.destroy()
     },
     createChart: (ctx, args) => new Chart(ctx, { ...args }),
+    createGraph: (nodeId, params) => ({
+      nodeId: nodeId,
+      isSet: false,
+      displayInfo: false,
+      chart: null,
+      ctx: null,
+      params: params,
+      args: null
+    }),
     getGraphFromNodeId: (graphs, nodeId) => graphs.find(graph => graph.nodeId === nodeId),
     setContextChart: (graph, ctx) => {
       /*
@@ -145,13 +154,23 @@ export const graphActions = {
     graphFromId: (graphs, graphId) => graphs[graphActions.utils.graphIndexFromId(graphs, graphId)]
   },
   effects: {
-    effectFetch: (action, { baseUrl, config }) =>
+    effectFetch: (action, { url }) =>
+      request({
+        url: url,
+        expect: 'json',
+        action: checkResponse(action)
+      }),
+    effectFetchQuery: (action, { baseUrl, config }) =>
       requestQuery({
         baseUrl: baseUrl,
         config: config,
         expect: 'json',
         action: checkResponse(action)
       }),
+    fetchDatasetQuery: (action, payload) => state => [
+      state,
+      graphActions.effects.effectFetchQuery(action, payload)
+    ],
     fetchDataset: (action, payload) => state => [
       state,
       graphActions.effects.effectFetch(action, payload)
@@ -200,15 +219,7 @@ export const graphActions = {
       return {
         ...props,
         graphs: [
-          ...props.graphs, {
-            nodeId: nodeId,
-            isSet: false,
-            displayInfo: false,
-            chart: null,
-            ctx: null,
-            params: params,
-            args: null
-          }
+          ...props.graphs, graphActions.utils.createGraph(nodeId, params)
         ]
       }
     }

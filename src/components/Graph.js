@@ -2,7 +2,7 @@ import { h } from 'hyperapp'
 // import { graphActions } from '../actions/GraphActions'
 
 const effectUpdateData = (graphActions, graphIndex, baseUrl) =>
-  graphActions.effects.effectFetch(
+  graphActions.effects.effectFetchQuery(
     (state, data) => {
       const graph = state.graph.graphs[graphIndex]
       return graphActions.state.updateGraph(
@@ -53,7 +53,7 @@ const graphInputButton = (nodeId, name, onClick) =>
     onclick: [onClick, { nodeId }]
   })
 
-const graphViewInterfaceType = (props, graphActions, graph) => {
+const graphViewInterfaceType = (_props, graphActions, graph) => {
   if (!graph.isSet || !graph.params.names) {
     return null
   }
@@ -112,7 +112,7 @@ const graphInfoInterface = (props, graphActions, graph) =>
         displayInfo: !graph.displayInfo
       }]
     }),
-    graph.displayInfo && graph.params.names
+    graph.displayInfo === true && graph.params.names
       ? graph.params.names.map(
         name =>
           h('p', {}, [
@@ -155,6 +155,7 @@ const graphDataInterface = (props, graphActions, graph) => {
     effects === undefined
       ? action
       : (props, payload) => [action(props, payload), effects]
+  console.log(props)
   return h('div', { class: 'graph_interface' }, [
     graphSelect(
       graph.nodeId,
@@ -206,49 +207,6 @@ const graphDataInterface = (props, graphActions, graph) => {
     )
   ])
 }
-const defaultGraphChatelet = (props, graphActions) =>
-  h('input', {
-    type: 'button',
-    value: 'Afficher un graph pour Chatelet',
-    onclick: [
-      graphActions.state.addGraph,
-      {
-        type: 'line',
-        datasetId: props.params.datasetIds.chatelet,
-        title: 'no et no2 en fonction du temps à Chatelet',
-        names: ['no2', 'no']
-      }
-    ]
-  })
-const defaultGraphAubert = (props, graphActions) =>
-  h('input', {
-    type: 'button',
-    value: 'Afficher un graph pour Auber',
-    onclick: [
-      graphActions.state.addGraph,
-      {
-        type: 'line',
-        datasetId: props.params.datasetIds.auber,
-        title: 'no et température en fonction du temps à Auber',
-        names: ['no', 'temp']
-      }
-    ]
-  })
-const defaultGraphRoosevelt = (props, graphActions) =>
-  h('input', {
-    type: 'button',
-    value: 'Afficher un graph pour Roosevelt',
-    onclick: [
-      graphActions.state.addGraph,
-      {
-        type: 'line',
-        datasetId: props.params.datasetIds.roosevelt,
-        title: 'co2 et température en fonction du temps à Roosevelt',
-        names: ['co2', 'temp'],
-        rows: 20
-      }
-    ]
-  })
 
 const newGraphInterface = (props, graphActions) =>
   h('div', { class: 'graph_interface' }, [
@@ -285,18 +243,10 @@ const displayAllGraphs = (props, graphActions) =>
     )
   ])
 
-const displayDefaultGraphs = (props, graphActions) =>
-  h('div', {}, [
-    defaultGraphChatelet(props, graphActions),
-    defaultGraphAubert(props, graphActions),
-    defaultGraphRoosevelt(props, graphActions)
-  ])
-
 const allGraphsInterface = (props, graphActions) =>
   h('div', { class: props.params.graphDivId }, [
     displayAllGraphs(props, graphActions),
-    newGraphInterface(props, graphActions),
-    displayDefaultGraphs(props, graphActions)
+    newGraphInterface(props, graphActions)
   ])
 
 export const graph = (props, graphActions) =>

@@ -24,7 +24,7 @@ app({
   subscriptions: subscriptions({
     graph: {
       target: node,
-      graphClass: initState.graph.params.graphClass
+      graphClass: initState[0].graph.params.graphClass
     }
   }),
   node: node

@@ -1,6 +1,5 @@
 
-// import { Chart } from 'chart.js'
-
+import { makeUrlQuery } from '../effects/request'
 /*
  * Hyperapp v2 does not support lifecycle events
  * (oncreate, ...)
@@ -76,11 +75,10 @@ const graphTypes = {
 // todo: replace items implementation with datasets
 
 export const initGraphState = {
-  graphs: [],
   params: {
     baseUrl: 'https://data.ratp.fr/api/records/1.0/search/',
     /* private */
-    __nextNodeId: 0,
+    __nextNodeId: 3,
     /* public */
     // eslint-disable-next-line fp/no-mutation
     getNextNodeId: () => 'canvas_' + initGraphState.params.__nextNodeId++,
@@ -91,5 +89,72 @@ export const initGraphState = {
     /* Array<Chart>() */
     graphDivId: 'graph_div',
     graphClass: 'canvas'
-  }
+  },
+  graphs: [
+    {
+      nodeId: 'canvas_0',
+      displayInfo: true,
+      isSet: false,
+      chart: null,
+      ctx: null,
+      args: null,
+      params: {
+        type: 'line',
+        datasetId: datasetIds.roosevelt,
+        title: 'co2 et température en fonction du temps à Roosevelt',
+        names: ['co2', 'temp'],
+        rows: 20
+      }
+    },
+    {
+      nodeId: 'canvas_1',
+      displayInfo: true,
+      isSet: false,
+      chart: null,
+      ctx: null,
+      args: null,
+      params: {
+        type: 'line',
+        datasetId: datasetIds.auber,
+        title: 'no et température en fonction du temps à Auber',
+        names: ['no', 'temp'],
+        rows: 20
+      }
+    },
+    {
+      nodeId: 'canvas_2',
+      displayInfo: true,
+      isSet: false,
+      chart: null,
+      ctx: null,
+      args: null,
+      params: {
+        type: 'line',
+        datasetId: datasetIds.roosevelt,
+        title: 'co2 et température en fonction du temps à Roosevelt',
+        names: ['co2', 'temp'],
+        rows: 20
+      }
+    }
+  ]
 }
+
+export const fxGraphStateInit = (state, actions) =>
+  state.graph.graphs.map(
+    graph => actions.graph.effects.effectFetch(
+      (props, data) =>
+        actions.graph.state.updateGraph(
+          props,
+          { nodeId: graph.nodeId, data: data }
+        ),
+      {
+        url: makeUrlQuery(
+          state.graph.params.baseUrl,
+          {
+            dataset: graph.params.datasetId,
+            rows: graph.params.rows
+          }
+        )
+      }
+    )
+  )
