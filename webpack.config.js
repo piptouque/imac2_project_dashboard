@@ -3,8 +3,13 @@ const path = require('path')
 const pkg = require('./package.json')
 const libraryName = pkg.name
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
+const HtmlWebPackPlugin = require("html-webpack-plugin")
 
 const plugins = [
+    new HtmlWebPackPlugin({
+    template: "dist/index.html",
+    filename: "index.html"
+    }),
   new webpack.optimize.ModuleConcatenationPlugin(),
   new MiniCssExtractPlugin()
 ]
