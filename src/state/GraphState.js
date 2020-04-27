@@ -100,9 +100,9 @@ export const initGraphState = {
       args: null,
       params: {
         type: 'line',
-        datasetId: datasetIds.roosevelt,
-        title: 'co2 et température en fonction du temps à Roosevelt',
-        names: ['co2', 'temp'],
+        datasetId: datasetIds.chatelet,
+        title: 'co2 et pm10 en fonction du temps à Châtelet',
+        names: ['co2', 'pm10'],
         rows: 20
       }
     },
